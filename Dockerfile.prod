@@ -1,0 +1,16 @@
+# First stage of build
+FROM node:20.2.0-alpine3.18 as BASE
+WORKDIR /app
+COPY package*.json ./
+RUN yarn install --network-timeout 500000 --no-cache --frozen-lockfile
+# COPY SOURCE TO COMPILE
+COPY . ./
+# BUILD APP
+RUN cp .env.prod.local .env.local
+RUN yarn build
+
+FROM node:20.2.0-alpine3.18
+COPY --from=BASE /app .
+# COPY --from=BASE /app .
+EXPOSE 3000
+CMD [ "yarn", "start" ]
